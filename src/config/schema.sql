@@ -1,0 +1,90 @@
+CREATE TABLE User (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(191) NOT NULL,
+  email VARCHAR(191) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  country VARCHAR(191) NOT NULL,
+  role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+
+CREATE TABLE Poet (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  realName VARCHAR(191) NOT NULL,
+  penName VARCHAR(191) NULL,
+  dateOfBirth DATE NULL,
+  placeOfBirth VARCHAR(191) NULL,
+  profilePicture VARCHAR(255) NULL,
+  bio LONGTEXT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP 
+    ON UPDATE CURRENT_TIMESTAMP
+)
+
+
+CREATE TABLE Content (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  poetId INT NOT NULL,
+  title VARCHAR(191) NOT NULL,
+  type ENUM('GHAZAL', 'NAZM', 'SHER', 'EBOOK', 'AUDIO', 'VIDEO') NOT NULL,
+  textContent LONGTEXT NULL,
+  pdfFile LONGTEXT NULL,
+  youtubeLink VARCHAR(255) NULL,
+  audioFile LONGTEXT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_content_poet
+    FOREIGN KEY (poetId) REFERENCES Poet(id)
+    ON DELETE CASCADE,
+
+  INDEX (poetId),
+  INDEX (type)
+)
+
+
+CREATE TABLE Favourite_Content (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  userId INT NOT NULL,
+  contentId INT NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_favourite_user
+    FOREIGN KEY (userId)
+    REFERENCES User(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_favourite_content
+    FOREIGN KEY (contentId)
+    REFERENCES Content(id)
+    ON DELETE CASCADE,
+
+  UNIQUE KEY unique_user_content (userId, contentId),
+  INDEX idx_userId (userId),
+  INDEX idx_contentId (contentId)
+)
+
+
+CREATE TABLE Favourite_Poet (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  userId INT NOT NULL,
+  poetId INT NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_favourite_poet_user
+    FOREIGN KEY (userId)
+    REFERENCES User(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_favourite_poet_poet
+    FOREIGN KEY (poetId)
+    REFERENCES Poet(id)
+    ON DELETE CASCADE,
+
+  UNIQUE KEY unique_user_poet (userId, poetId),
+  INDEX idx_userId_poet (userId),
+  INDEX idx_poetId (poetId)
+)
+
