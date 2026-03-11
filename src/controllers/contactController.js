@@ -11,9 +11,9 @@ const sendContactEmail = async (req, res, next) => {
         // Configure Nodemailer transporter
         // Use SMTP credentials from environment variable for security
         // const transporter = nodemailer.createTransport({
-        //     host: process.env.SMTP_HOST || "mail.asifemaan.com",
-        //     port: process.env.SMTP_PORT || 465,
-        //     secure: false, // true for 465, false for other ports
+        //     host: process.env.SMTP_HOST,
+        //     port: process.env.SMTP_PORT,
+        //     secure: false,
         //     auth: {
         //         user: process.env.SMTP_USER,
         //         pass: process.env.SMTP_PASS,
@@ -21,35 +21,23 @@ const sendContactEmail = async (req, res, next) => {
         // });
 
         const transporter = nodemailer.createTransport({
-            host: "mail.asifemaan.com",
-            port: 587,
-            secure: false,
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT),  // ensure it's a number
+            secure: process.env.SMTP_PORT,   // true for 465, false for 587
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            requireTLS: true,
             tls: {
-                rejectUnauthorized: false
+                rejectUnauthorized: false  // helps with some hosting providers
             }
         });
 
-        // const transporter = nodemailer.createTransport({
-        //     host: "mail.asifemaan.com",
-        //     port: 465,
-        //     secure: true,
-        //     auth: {
-        //         user: "contact@asifemaan.com",
-        //         pass: process.env.SMTP_PASS,
-        //     },
-        //     logger: true,
-        //     debug: true
-        // });
 
         // Email Content
         const mailOptions = {
-            from: `"Asifemaan Contact" <${process.env.SMTP_USER}>`, // sender address
-            to: process.env.RECEIVER_EMAIL, // receiver (your email)
+            from: `"Asifemaan Contact" <${process.env.SMTP_USER}>`,
+            to: process.env.RECEIVER_EMAIL,
             replyTo: email,
             subject: `New Contact Submission from ${name}`,
             html: `
