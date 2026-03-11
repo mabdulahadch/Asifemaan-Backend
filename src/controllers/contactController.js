@@ -22,15 +22,29 @@ const sendContactEmail = async (req, res, next) => {
 
         const transporter = nodemailer.createTransport({
             host: "mail.asifemaan.com",
-            port: 465,
+            port: 587,
             secure: false,
             auth: {
-                user: "contact@asifemaan.com",
+                user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            logger: true,
-            debug: true
+            requireTLS: true,
+            tls: {
+                rejectUnauthorized: false
+            }
         });
+
+        // const transporter = nodemailer.createTransport({
+        //     host: "mail.asifemaan.com",
+        //     port: 465,
+        //     secure: true,
+        //     auth: {
+        //         user: "contact@asifemaan.com",
+        //         pass: process.env.SMTP_PASS,
+        //     },
+        //     logger: true,
+        //     debug: true
+        // });
 
         // Email Content
         const mailOptions = {
