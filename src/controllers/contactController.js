@@ -10,14 +10,26 @@ const sendContactEmail = async (req, res, next) => {
 
         // Configure Nodemailer transporter
         // Use SMTP credentials from environment variable for security
+        // const transporter = nodemailer.createTransport({
+        //     host: process.env.SMTP_HOST || "mail.asifemaan.com",
+        //     port: process.env.SMTP_PORT || 465,
+        //     secure: false, // true for 465, false for other ports
+        //     auth: {
+        //         user: process.env.SMTP_USER,
+        //         pass: process.env.SMTP_PASS,
+        //     },
+        // });
+
         const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || "mail.asifemaan.com",
-            port: process.env.SMTP_PORT || 465,
-            secure: true, // true for 465, false for other ports
+            host: "mail.asifemaan.com",
+            port: 465,
+            secure: false,
             auth: {
-                user: process.env.SMTP_USER,
+                user: "contact@asifemaan.com",
                 pass: process.env.SMTP_PASS,
             },
+            logger: true,
+            debug: true
         });
 
         // Email Content
