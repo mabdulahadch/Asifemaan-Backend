@@ -19,6 +19,8 @@ const updateSettings = async (req, res, next) => {
 
         const [existing] = await pool.execute("SELECT * FROM SiteSettings WHERE id = 1");
         let oldRecord = existing[0] || {};
+        
+        let finalLogo = oldRecord.logo || null;
 
         let finalBanners = [];
         if (existingBanners) {
@@ -37,6 +39,17 @@ const updateSettings = async (req, res, next) => {
             );
             const newUrls = await Promise.all(uploadPromises);
             finalBanners = [...finalBanners, ...newUrls];
+        }
+
+        // Upload any new logo
+        if (req.files?.logo) {
+            const logoFile = req.files.logo[0];
+            finalLogo = await uploadToSiteGround(logoFile.buffer, logoFile.originalname, "logo");
+            
+            // Cleanup removed old logo if valid
+            if (oldRecord.logo && oldRecord.logo !== finalLogo) {
+                deleteFromSiteGround(oldRecord.logo).catch(() => { });
+            }
         }
 
         // Cleanup removed banners
@@ -59,13 +72,13 @@ const updateSettings = async (req, res, next) => {
 
         if (existing.length === 0) {
             await pool.execute(
-                `INSERT INTO SiteSettings (id, youtubeUrl, facebookUrl, instagramUrl, linkedinUrl, twitterUrl, banners) VALUES (1, ?, ?, ?, ?, ?, ?)`,
-                [youtubeUrl || null, facebookUrl || null, instagramUrl || null, linkedinUrl || null, twitterUrl || null, bannersJson]
+                `INSERT INTO SiteSettings (id, logo, youtubeUrl, facebookUrl, instagramUrl, linkedinUrl, twitterUrl, banners) VALUES (1, ?, ?, ?, ?, ?, ?, ?)`,
+                [finalLogo, youtubeUrl || null, facebookUrl || null, instagramUrl || null, linkedinUrl || null, twitterUrl || null, bannersJson]
             );
         } else {
             await pool.execute(
-                `UPDATE SiteSettings SET youtubeUrl = ?, facebookUrl = ?, instagramUrl = ?, linkedinUrl = ?, twitterUrl = ?, banners = ? WHERE id = 1`,
-                [youtubeUrl || null, facebookUrl || null, instagramUrl || null, linkedinUrl || null, twitterUrl || null, bannersJson]
+                `UPDATE SiteSettings SET logo = ?, youtubeUrl = ?, facebookUrl = ?, instagramUrl = ?, linkedinUrl = ?, twitterUrl = ?, banners = ? WHERE id = 1`,
+                [finalLogo, youtubeUrl || null, facebookUrl || null, instagramUrl || null, linkedinUrl || null, twitterUrl || null, bannersJson]
             );
         }
 

@@ -22,6 +22,6 @@ const upload = multer({
 });
 
 router.get("/", settingsController.getSettings);
-router.put("/", auth, adminAuth, upload.fields([{ name: "banners", maxCount: 10 }]), settingsController.updateSettings);
+router.put("/", auth, adminAuth, upload.fields([{ name: "banners", maxCount: 10 }, { name: "logo", maxCount: 1 }]), settingsController.updateSettings);
 
 module.exports = router;
